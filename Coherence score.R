@@ -60,17 +60,18 @@ head(dtf)
 
 dtm <- document_term_matrix(x = dtf)
 
-dtm <- dtm_remove_lowfreq(dtm, minfreq = 4)
+dtm <- dtm_remove_lowfreq(dtm, minfreq = 3)
 
 head(dtm_colsums(dtm))
 
-dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "gothus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
+#dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "gothus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
 dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
 
+# Coherence score
 
 k_list <- seq(1,15, by=1)
 
@@ -107,8 +108,8 @@ coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
 ggplot(coherence_mat, aes(x = k, y = coherence)) +
   geom_point() +
   geom_line(group = 1)+
-  ggtitle("Îïòèìàëüíîå êîëè÷åñòâî òåì (k)") + theme_minimal() +
-  scale_x_continuous(breaks = seq(1,15,1)) + ylab("Êîãåðåíòíîñòü ìîäåëè")
+  ggtitle("ÐžÐ¿Ñ‚Ð¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ñ‚ÐµÐ¼ (k)") + theme_minimal() +
+  scale_x_continuous(breaks = seq(1,15,1)) + ylab("ÐšÐ¾Ð³ÐµÑ€ÐµÐ½Ñ‚Ð½Ð¾ÑÑ‚ÑŒ Ð¼Ð¾Ð´ÐµÐ»Ð¸")
 
 
 

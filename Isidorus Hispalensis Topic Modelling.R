@@ -119,7 +119,7 @@ dtm <- dtm_remove_tfidf(dtm, top = 50)
 
 library(topicmodels)
 
-topicModel <- topicmodels:LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+topicModel <- LDA(dtm, k = 5, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
 
 topics(topicModel)
 
@@ -210,7 +210,7 @@ result <- FindTopicsNumber(
 
 FindTopicsNumber_plot(result)
 
-control = list(iter = 2000, burnin = 1000, best = TRUE, seed = 1:6, alpha = 0.1),
+control = list(iter = 2000, burnin = 1000, best = TRUE, seed = 1:6, alpha = 0.1)
 
 
 library(topicmodels)
