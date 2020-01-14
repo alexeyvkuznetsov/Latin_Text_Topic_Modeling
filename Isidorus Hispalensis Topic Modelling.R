@@ -10,7 +10,7 @@ library(textrank)
 library(topicmodels)
 
 
-#setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
+setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
 
 library(tidytext)
 library(NLP)
@@ -77,11 +77,6 @@ udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.4-190531.udpipe")
 x <- udpipe_annotate(udmodel_latin, x = fivebooks$texts, doc_id = fivebooks$book, tagger = "default", parser = "default", trace = TRUE)
 x <- as.data.frame(x)
 
-x <- udpipe_annotate(udmodel_latin, x = fourbooks$texts, doc_id = fourbooks$book, tagger = "default", parser = "default", trace = TRUE)
-x <- as.data.frame(x)
-
-x <- udpipe_annotate(udmodel_latin, x = threebooks$texts, doc_id = threebooks$book, tagger = "default", parser = "default", trace = TRUE)
-x <- as.data.frame(x)
 
 save(x,file="fivebooks_annotated_dataset.Rda")
 
@@ -94,14 +89,14 @@ x$topic_level_id <- unique_identifier(x, fields = c("doc_id", "paragraph_id", "s
 
 dtf <- subset(x, upos %in% c("NOUN"))
 
-dtf <- document_term_frequencies(dtf, document = "topic_level_id", term = "lemma")
+dtf <- document_term_frequencies(dtf, document = "doc_id", term = "lemma")
 
 head(dtf)
 
 
 dtm <- document_term_matrix(x = dtf)
 
-dtm <- dtm_remove_lowfreq(dtm, minfreq = 2)
+dtm <- dtm_remove_lowfreq(dtm, minfreq = 4)
 
 head(dtm_colsums(dtm))
 
@@ -124,7 +119,7 @@ dtm <- dtm_remove_tfidf(dtm, top = 50)
 
 library(topicmodels)
 
-topicModel <- LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+topicModel <- topicmodels:LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
 
 topics(topicModel)
 
