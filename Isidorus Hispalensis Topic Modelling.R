@@ -10,13 +10,15 @@ library(textrank)
 library(topicmodels)
 
 
+#setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
+
 library(tidytext)
 library(NLP)
 library(tm)
 library(topicmodels)
 library(udpipe)
 
-setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
+
 
 
 prologus<-paste(scan(file ="files/01 prologus.txt",what='character'),collapse=" ")
@@ -63,9 +65,9 @@ historia_s$book<-"Historia_Suevorum"
 
 fivebooks<-rbind(prologus,historia_g,recapitulatio,historia_w,historia_s)
 
-fourbooks<-rbind(prologus,historia_g,historia_w,historia_s)
+#fourbooks<-rbind(prologus,historia_g,historia_w,historia_s)
 
-threebooks<-rbind(historia_g,historia_w,historia_s)
+#threebooks<-rbind(historia_g,historia_w,historia_s)
 
 
 
@@ -83,17 +85,16 @@ x <- as.data.frame(x)
 
 save(x,file="fivebooks_annotated_dataset.Rda")
 
-save(x,file="threebooks_annotated_dataset.Rda")
 
+#load("fivebooks_annotated_dataset.Rda")
 
-load("fivebooks_annotated_dataset.Rda")
 class(x)
 
 x$topic_level_id <- unique_identifier(x, fields = c("doc_id", "paragraph_id", "sentence_id"))
 
 dtf <- subset(x, upos %in% c("NOUN"))
 
-dtf <- document_term_frequencies(dtf, document = "doc_id", term = "lemma")
+dtf <- document_term_frequencies(dtf, document = "topic_level_id", term = "lemma")
 
 head(dtf)
 
@@ -104,17 +105,95 @@ dtm_clean <- dtm_remove_lowfreq(dtm, minfreq = 2)
 
 head(dtm_colsums(dtm_clean))
 
-dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "annus", "aer", "filius"))
-
-dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
+#dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "annus", "aer", "filius"))
+
+#dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "gothus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
 ## Or keep of these nouns the top 50 based on mean term-frequency-inverse document frequency
+
 dtm_clean <- dtm_remove_tfidf(dtm_clean, top = 50)
+
+
+
+####FINAL
+
+library(topicmodels)
+
+topicModel <- LDA(dtm_clean, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+
+topics(topicModel)
+
+
+
+
+## Менять параметр free_y на free для изменения масштаба
+
+library(ggplot2)
+library(dplyr)
+
+
+td_beta <- tidy(topicModel)
+td_beta %>%
+  group_by(topic) %>%
+  top_n(6, beta) %>%
+  ungroup() %>%
+  mutate(topic = paste0("Topic ", topic),
+         term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = as.factor(topic))) +
+  geom_col(alpha = 0.8, show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() +
+  labs(x = NULL, y = expression(beta),
+       title = "Наиболее часто встречающиеся слова для каждой темы")
+
+
+
+
+
+### Распределение тем по документам https://tm4ss.github.io/docs/Tutorial_6_Topic_Models.html
+
+
+textIds <- c(1, 2, 3, 4, 5)
+
+lapply(fivebooks$texts[textIds], as.character)
+
+tmResult <- posterior(topicModel)
+
+theta <- tmResult$topics
+beta <- tmResult$terms
+topicNames <- apply(terms(topicModel, 7), 2, paste, collapse = " ")  
+
+attr(topicModel, "alpha")
+
+# load libraries for visualization
+
+library("reshape2")
+library("ggplot2")
+
+
+# get topic proportions form example documents
+
+N <- 5
+
+topicProportionExamples <- theta[textIds,]
+colnames(topicProportionExamples) <- topicNames
+vizDataFrame <- melt(cbind(data.frame(topicProportionExamples), document = factor(1:N)), variable.name = "topic", id.vars = "document")  
+
+ggplot(data = vizDataFrame, aes(topic, value, fill = document), ylab = "proportion") + 
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  
+  coord_flip() +
+  facet_wrap(~ document, ncol = N)
+
+
+
+
 
 ###
 Определение оптимального значения K для моделирования
@@ -458,9 +537,9 @@ topics(topicModel)
 
 
 
-FINAL
+####FINAL
 
-topicModel <- LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+topicModel <- LDA(dtm_clean, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
 
 topics(topicModel)
 
