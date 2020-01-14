@@ -1,3 +1,5 @@
+#setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
+
 library(textmineR)
 library(igraph)
 library(ggraph)
@@ -5,7 +7,6 @@ library(ggplot2)
 library(tm)
 library(udpipe)
 
-setwd("F:/R_test/Isidor/")
 
 
 prologus<-paste(scan(file ="files/01 prologus.txt",what='character'),collapse=" ")
@@ -67,6 +68,74 @@ dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes
 
 
 dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
+
+
+
+
+k_list <- seq(1,15, by=1)
+
+
+
+model_dir <- paste0("models_", digest::digest(colnames(dtm), algo = "sha1"))
+if (!dir.exists(model_dir)) dir.create(model_dir)
+
+
+model_list <- TmParallelApply(X = k_list, FUN = function(k){
+  
+  m <- FitLdaModel(dtm = dtm, 
+                   k = k, 
+                   iterations = 4000, 
+                   burnin = 500,
+                   alpha = 0.1,
+                   optimize_alpha = FALSE,
+                   calc_likelihood = FALSE,
+                   calc_coherence = TRUE,
+                   calc_r2 = FALSE,
+                   cpus = 1)
+  m$k <- k
+  
+  m
+}, export= c("dtm"), 
+cpus = 2)
+
+
+
+coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
+                            coherence = sapply(model_list, function(x) mean(x$coherence)), 
+                            stringsAsFactors = FALSE)
+
+ggplot(coherence_mat, aes(x = k, y = coherence)) +
+  geom_point() +
+  geom_line(group = 1)+
+  ggtitle("Оптимальное количество тем (k)") + theme_minimal() +
+  scale_x_continuous(breaks = seq(1,15,1)) + ylab("Когерентность модели")
+
+#################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
