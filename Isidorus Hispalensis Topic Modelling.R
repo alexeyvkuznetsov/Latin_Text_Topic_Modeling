@@ -101,9 +101,9 @@ head(dtf)
 
 dtm <- document_term_matrix(x = dtf)
 
-dtm_clean <- dtm_remove_lowfreq(dtm, minfreq = 2)
+dtm <- dtm_remove_lowfreq(dtm, minfreq = 2)
 
-head(dtm_colsums(dtm_clean))
+head(dtm_colsums(dtm))
 
 
 
@@ -111,12 +111,12 @@ head(dtm_colsums(dtm_clean))
 
 #dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
-dtm_clean <- dtm_remove_terms(dtm_clean, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "gothus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
+dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "gothus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
 ## Or keep of these nouns the top 50 based on mean term-frequency-inverse document frequency
 
-dtm_clean <- dtm_remove_tfidf(dtm_clean, top = 50)
+dtm <- dtm_remove_tfidf(dtm, top = 50)
 
 
 
@@ -124,7 +124,7 @@ dtm_clean <- dtm_remove_tfidf(dtm_clean, top = 50)
 
 library(topicmodels)
 
-topicModel <- LDA(dtm_clean, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+topicModel <- LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
 
 topics(topicModel)
 
