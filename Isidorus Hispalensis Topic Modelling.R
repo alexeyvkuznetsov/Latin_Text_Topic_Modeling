@@ -7,25 +7,11 @@ library(ggplot2)
 library(tm)
 library(udpipe)
 
-
-
 prologus<-paste(scan(file ="files/01 prologus.txt",what='character'),collapse=" ")
 historia_g<-paste(scan(file ="files/02 historia_g.txt",what='character'),collapse=" ")
 recapitulatio<-paste(scan(file ="files/03 recapitulatio.txt",what='character'),collapse=" ")
 historia_w<-paste(scan(file ="files/04 historia_w.txt",what='character'),collapse=" ")
 historia_s<-paste(scan(file ="files/05 historia_s.txt",what='character'),collapse=" ")
-
-prologus <- tolower(prologus)
-historia_g <- tolower(historia_g)
-recapitulatio <- tolower(recapitulatio)
-historia_w <- tolower(historia_w)
-historia_s <- tolower(historia_s)
-
-prologus <- stripWhitespace(prologus)
-historia_g <- stripWhitespace(historia_g)
-recapitulatio <- stripWhitespace(recapitulatio)
-historia_w <- stripWhitespace(historia_w)
-historia_s <- stripWhitespace(historia_s)
 
 prologus<-data.frame(texts=prologus)
 historia_g<-data.frame(texts=historia_g)
@@ -33,25 +19,33 @@ recapitulatio<-data.frame(texts=recapitulatio)
 historia_w<-data.frame(texts=historia_w)
 historia_s<-data.frame(texts=historia_s)
 
-
-prologus$book<-"Prologus"
-historia_g$book<-"Historia_Gothorum"
-recapitulatio$book<-"Recapitulatio"
-historia_w$book<-"Historia_Wandalorum"
-historia_s$book<-"Historia_Suevorum"
-
-
-fivebooks<-rbind(prologus,historia_g,recapitulatio,historia_w,historia_s)
+prologus$book<-"01 Prologus"
+historia_g$book<-"02 Historia Gothorum"
+recapitulatio$book<-"03 Recapitulatio"
+historia_w$book<-"04 Historia Wandalorum"
+historia_s$book<-"05 Historia Suevorum"
 
 
+historia<-rbind(prologus,historia_g,recapitulatio,historia_w,historia_s)
+
+#historia$texts <- stripWhitespace(historia$texts)
+historia$texts <- tolower(historia$texts)
+historia$texts <- removePunctuation(historia$texts)
+historia$texts <- removeNumbers(historia$texts)
+
+
+
+# UDPipe annotation
+#udmodel_latin <- udpipe_download_model(language = "latin_ittb")
+#udmodel_latin <- udpipe_load_model(ud_model$file_model)
 udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.4-190531.udpipe")
 
 
-x <- udpipe_annotate(udmodel_latin, x = fivebooks$texts, doc_id = fivebooks$book, tagger = "default", parser = "default", trace = TRUE)
+x <- udpipe_annotate(udmodel_latin, x = historia$texts, doc_id = fivebooks$book, tagger = "default", parser = "default", trace = TRUE)
 x <- as.data.frame(x)
 
 
-save(x,file="fivebooks_annotated_dataset.Rda")
+save(x,file="hustoria_annotated_dataset.Rda")
 
 
 #load("fivebooks_annotated_dataset.Rda")
