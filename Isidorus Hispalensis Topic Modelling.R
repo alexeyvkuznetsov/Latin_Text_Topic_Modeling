@@ -127,7 +127,7 @@ topicModel <- topicmodels::LDA(dtm, k = 4, method = "Gibbs", control = list(nsta
 topics(topicModel)
 
 
-## Vizualization
+# Topics vizualization
 
 library(tidytext)
 library(ggplot2)
