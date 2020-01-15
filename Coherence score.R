@@ -60,7 +60,7 @@ head(dtf)
 
 dtm <- document_term_matrix(x = dtf)
 
-dtm <- dtm_remove_lowfreq(dtm, minfreq = 3)
+dtm <- dtm_remove_lowfreq(dtm, minfreq = 4)
 
 head(dtm_colsums(dtm))
 
@@ -116,10 +116,33 @@ ggplot(coherence_mat, aes(x = k, y = coherence)) +
 
 
 
+library(topicmodels)
+
+topicModel <- topicmodels::LDA(dtm, k = 7, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
+
+topics(topicModel)
 
 
+## Менять параметр free_y на free для изменения масштаба
+library(tidytext)
+library(ggplot2)
+library(dplyr)
 
 
+td_beta <- tidy(topicModel)
+td_beta %>%
+  group_by(topic) %>%
+  top_n(6, beta) %>%
+  ungroup() %>%
+  mutate(topic = paste0("Topic ", topic),
+         term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = as.factor(topic))) +
+  geom_col(alpha = 0.8, show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() +
+  labs(x = NULL, y = expression(beta),
+       title = "Наиболее часто встречающиеся слова для каждой темы")
 
 
 
