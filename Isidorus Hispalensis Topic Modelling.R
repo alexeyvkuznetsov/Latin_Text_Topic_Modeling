@@ -104,7 +104,7 @@ ggplot(coherence_mat, aes(x = k, y = coherence)) +
   geom_point() +
   geom_line(group = 1)+
   ggtitle("Оптимальное количество тем (k)") + theme_minimal() +
-  scale_x_continuous(breaks = seq(1,15,1)) + ylab("Когерентность модели")
+  scale_x_continuous(breaks = seq(1,15,1)) + ylab("Когерентность тем")
 
 
 
@@ -145,7 +145,7 @@ td_beta %>%
 
 
 
-### Распределение тем по документам https://tm4ss.github.io/docs/Tutorial_6_Topic_Models.html
+### Topic proportions https://tm4ss.github.io/docs/Tutorial_6_Topic_Models.html
 
 
 textIds <- c(1, 2, 3, 4, 5)
