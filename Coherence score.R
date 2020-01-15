@@ -1,4 +1,4 @@
-#setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
+setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
 
 library(textmineR)
 library(igraph)
