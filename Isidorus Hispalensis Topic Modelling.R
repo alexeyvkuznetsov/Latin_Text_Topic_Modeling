@@ -41,7 +41,7 @@ historia$texts <- removeNumbers(historia$texts)
 udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.4-190531.udpipe")
 
 
-x <- udpipe_annotate(udmodel_latin, x = historia$texts, doc_id = fivebooks$book, tagger = "default", parser = "default", trace = TRUE)
+x <- udpipe_annotate(udmodel_latin, x = historia$texts, doc_id = historia$book, tagger = "default", parser = "default", trace = TRUE)
 x <- as.data.frame(x)
 
 
