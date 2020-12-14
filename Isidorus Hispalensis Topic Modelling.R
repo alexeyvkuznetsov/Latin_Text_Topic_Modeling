@@ -150,9 +150,9 @@ td_beta %>%
 
 textIds <- c(1, 2, 3, 4, 5)
 
-lapply(fivebooks$texts[textIds], as.character)
+lapply(historia$book[textIds], as.character)
 
-tmResult <- posterior(topicModel)
+tmResult <- topicmodels::posterior(topicModel)
 
 theta <- tmResult$topics
 beta <- tmResult$terms
