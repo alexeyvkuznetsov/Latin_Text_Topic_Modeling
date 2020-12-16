@@ -183,6 +183,33 @@ ggplot(data = vizDataFrame, aes(topic, value, fill = document), ylab = "proporti
 
 
 
+#########################################################################
+### LDAvis VISUALISATION                                              ###
+#########################################################################
+# https://github.com/love-borjeson/tm_ws_cloud/blob/master/3_ling_filter.R
+# udpipe + LDAvis
+
+
+
+topicmodels2LDAvis <- function(x, ...){
+  post <- topicmodels::posterior(x)
+  if (ncol(post[["topics"]]) < 3) stop("The model must contain > 2 topics")
+  mat <- x@wordassignments
+  LDAvis::createJSON(
+    phi = post[["terms"]], 
+    theta = post[["topics"]],
+    vocab = colnames(post[["terms"]]),
+    doc.length = slam::row_sums(mat, na.rm = TRUE),
+    term.frequency = slam::col_sums(mat, na.rm = TRUE)
+  )
+}
+
+require(LDAvis)
+
+serVis(topicmodels2LDAvis(topicModel),  out.dir = 'LDAvis', open.browser = interactive())
+
+serVis(topicmodels2LDAvis(topicModel))
+#servr::daemon_stop(1) # to stop the server 
 
 
 
