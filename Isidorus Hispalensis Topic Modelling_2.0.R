@@ -48,6 +48,29 @@ tokens <- udpipe(content(corpus), "latin")
 
 corpus$tokens <-  as.tokenizedTexts(split(tokens$lemma, tokens$doc_id))
 
+sss <- split(tokens$lemma, tokens$doc_id)
+
+
+
+
+
+
+
+
+library(udpipe)
+library(quanteda)
+#udmodel_latin <- udpipe_download_model(language = "latin-ittb")
+#udmodel_latin <- udpipe_load_model(ud_model$file_model)
+udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.5-191206.udpipe")
+x <- tokens(content(corpus), what = "sentence", remove_numbers = T, remove_punct = T, remove_url = T, remove_symbols = T)
+x <- udpipe_annotate(udmodel_latin, unlist(x))
+x <- as.data.frame(x)
+x <- document_term_frequencies(x[, c("doc_id", "lemma")])
+dtm <- document_term_matrix(x)
+
+
+
+
 #PRE-PROCESSING THE CORPUS:
 
 #Load the text mining package(s)
