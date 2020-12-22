@@ -37,9 +37,15 @@ corpus <- Corpus(DirSource(
 #Pre-processing and tranforming the Corpus
 #myStopwords <- c(stopwords("english"), stopwords("SMART"))
 your_corpus <- tm_map(corpus, content_transformer(tolower))
-your_corpus <- tm_map(your_corpus, removeWords, myStopwords) 
+#your_corpus <- tm_map(your_corpus, removeWords, myStopwords) 
 your_corpus <- tm_map(your_corpus, removeNumbers)
 your_corpus <- tm_map(your_corpus, removePunctuation)
 your_corpus <- tm_map(your_corpus, stripWhitespace)
 your_corpus <- tm_map(your_corpus, stemDocument)
+
+
+
+
+
+
 
