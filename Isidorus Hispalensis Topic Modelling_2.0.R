@@ -26,6 +26,28 @@ corpus <- Corpus(DirSource(
   mode = "text",
 ))
 
+
+library(quanteda)
+
+tokens <- udpipe(texts(x), "english")
+x$tokens <-  as.tokenizedTexts(split(tokens$lemma, tokens$doc_id))
+
+library(udpipe)
+
+# UDPipe annotation
+#udmodel_latin <- udpipe_download_model(language = "latin-ittb")
+#udmodel_latin <- udpipe_load_model(ud_model$file_model)
+udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.5-191206.udpipe")
+
+
+#x <- udpipe_annotate(udmodel_latin, x = corpus$content, doc_id = corpus$id, tagger = "default", parser = "default", trace = TRUE)
+#x <- as.data.frame(x)
+
+
+tokens <- udpipe(content(corpus), "latin")
+
+corpus$tokens <-  as.tokenizedTexts(split(tokens$lemma, tokens$doc_id))
+
 #PRE-PROCESSING THE CORPUS:
 
 #Load the text mining package(s)
