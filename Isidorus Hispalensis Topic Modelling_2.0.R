@@ -23,7 +23,7 @@ corpus <- Corpus(DirSource(
   directory = "D:/GitHub/Latin_Text_Topic_Modeling/files/", 
   encoding = "UTF-8",
   recursive = TRUE,
-  mode = "text"
+  mode = "text",
 ))
 
 #PRE-PROCESSING THE CORPUS:
