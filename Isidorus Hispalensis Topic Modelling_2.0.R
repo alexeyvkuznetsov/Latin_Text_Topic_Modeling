@@ -14,14 +14,32 @@ library("tm")
 
 #Set the working directory
 
-setwd("D:/GitHub/Latin_Topic_Modeling/")
+setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
 
 #Here the file path is input using a Direct Source command 
 #which is in turn transformed into a corpus. Also telling R 
 #to look in multiple folders (recursive)
 corpus <- Corpus(DirSource(
-  directory = "D:/GitHub/Latin_Topic_Modeling/files/", 
+  directory = "D:/GitHub/Latin_Text_Topic_Modeling/files/", 
   encoding = "UTF-8",
   recursive = TRUE,
   mode = "text"
 ))
+
+#PRE-PROCESSING THE CORPUS:
+
+#Load the text mining package(s)
+#library("SnowballC")
+
+#Setting the stopwords dictionaries and custom words
+#myStopwords <- c(stopwords("english"), "my", "custom", "words")
+
+#Pre-processing and tranforming the Corpus
+#myStopwords <- c(stopwords("english"), stopwords("SMART"))
+your_corpus <- tm_map(corpus, content_transformer(tolower))
+your_corpus <- tm_map(your_corpus, removeWords, myStopwords) 
+your_corpus <- tm_map(your_corpus, removeNumbers)
+your_corpus <- tm_map(your_corpus, removePunctuation)
+your_corpus <- tm_map(your_corpus, stripWhitespace)
+your_corpus <- tm_map(your_corpus, stemDocument)
+
