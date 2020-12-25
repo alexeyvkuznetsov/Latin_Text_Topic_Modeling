@@ -202,3 +202,16 @@ for (k in topics)
     save(training, testing, file = file.path("results", FILE))
   }
 }
+
+
+
+library(udpipe)
+library(quanteda)
+dl <- udpipe_download_model(language = "dutch")
+udmodel_dutch <- udpipe_load_model(file = "dutch-ud-2.0-170801.udpipe")
+txt <- c("Ik ging op reis en ik nam mee: mijn laptop, mijn zonnebril en goed humeur.", "Deze zin is een andere test.")
+x <- tokens(txt, what = "sentence", remove_numbers = T, remove_punct = T, remove_url = T, remove_symbols = T)
+x <- udpipe_annotate(udmodel_dutch, unlist(x))
+x <- as.data.frame(x)
+x <- document_term_frequencies(x[, c("doc_id", "lemma")])
+dtm <- document_term_matrix(x)
