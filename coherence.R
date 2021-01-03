@@ -1,11 +1,3 @@
-########################################################################
-########################################################################
-##  Topic Coherence                                ##
-##  Author: Alexey Kuznetsov                                          ##
-##  URL: https://github.com/alexeyvkuznetsov/Latin_Text_Preprocessing ##
-##       https://alexeyvkuznetsov.github.io                           ##
-########################################################################
-########################################################################
 
 # clean current workspace
 rm(list=ls(all=T))
