@@ -101,6 +101,104 @@ annotated_plots_clean %>%
   cast_dfm(doc_id, lemma, n) -> dfm
 
 
+dfm2stm <- convert(dfm, to = "stm")
+
+mein.stm.idealK <- searchK(dfm2stm$documents, dfm2stm$vocab, K = seq(2, 15, by = 1), max.em.its = 75)
+
+
+library(stm)
+library(furrr)
+
+
+plan("default")
+start_time_stm <- Sys.time()
+
+many_models <- tibble(K = c(2, 4, 6, 8, 10, 12)) %>%
+  mutate(topic_model = future_map(K, ~stm(dfm, K = .,
+                                          verbose = FALSE)))
+threads_sparse <- dfm
+
+many_models <- tibble::tibble(K = seq(2, 15, by = 1)) %>%
+  dplyr::mutate(topic_model = future_map(K, ~stm(threads_sparse, K = .,
+                                                 verbose = FALSE)))
+heldout <- make.heldout(threads_sparse)
+
+many_models <- data_frame(K = seq(2, 15, by = 1)) %>% 
+  mutate(topic_model = future_map(K, ~stm(threads_sparse, 
+                                          K = .,
+                                          verbose = FALSE)))
+
+
+
+nTopics <- seq(2,10,1)
+
+many_models_stm <- data_frame(K = nTopics) %>%
+  mutate(topic_model = future_map(K, ~stm(dfm, K = ., verbose = TRUE)))
+
+
+
+
+
+end_time_stm <- Sys.time() # 4 mins
+
+heldout <- make.heldout(dfm)
+
+k_result <- many_models_stm %>%
+  mutate(exclusivity        = map(topic_model, exclusivity),
+         semantic_coherence = map(topic_model, semanticCoherence, dfm),
+         eval_heldout       = map(topic_model, eval.heldout, heldout$missing),
+         residual           = map(topic_model, checkResiduals, gfm),
+         bound              = map_dbl(topic_model, function(x) max(x$convergence$bound)),
+         lfact              = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
+         lbound             = bound + lfact,
+         iterations         = map_dbl(topic_model, function(x) length(x$convergence$bound)))
+
+k_result %>%
+  transmute(K,
+            `Lower bound`         = lbound,
+            Residuals             = map_dbl(residual, "dispersion"),
+            `Semantic coherence`  = map_dbl(semantic_coherence, mean),
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
+  gather(Metric, Value, -K) %>%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
+  facet_wrap(~Metric, scales = "free_y") +
+  labs(x        = "K (number of topics)",
+       y        = NULL,
+       title    = "Model diagnostics by number of topics",
+       subtitle = "These diagnostics indicate that a good number of topics would be around 15")
+
+
+excl_sem_plot <- k_result                          %>%
+  select(K, exclusivity, semantic_coherence)       %>%
+  filter(K %in% seq(2,16,2)) %>%
+  unnest()                                         %>%
+  mutate(K = as.factor(K))                         %>%
+  ggplot(aes(semantic_coherence, exclusivity, color = K)) +
+  geom_point(size = 5, alpha = 0.7) +
+  labs(x = "Semantic coherence",
+       y = "Exclusivity",
+       title = "Comparing exclusivity and semantic coherence",
+       subtitle = "Models with fewer topics have higher semantic coherence for more topics, but lower exclusivity") +
+  scale_color_viridis_d()
+
+excl_sem_plot
+
+anim_plot <- excl_sem_plot +
+  labs(title = 'K: {round(frame_time,0)}') +
+  transition_time(as.numeric(K)) +
+  ease_aes('linear')
+animate(anim_plot, nframes = 8, fps = 0.5)
+
+
+
+
+#++++++++++++++++
+
+
+
+
+
 
 dfm <- dfm %>% 
   dfm_trim(min_termfreq = 4)
@@ -125,6 +223,35 @@ many_models <- data_frame(K = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)) %>%
 
 
 heldout <- make.heldout(dfm)
+
+
+
+library("stm")
+library(furrr)
+plan(multiprocess)
+
+many_models <- tibble::tibble(K = seq(2, 10, by = 1)) %>%
+  dplyr::mutate(topic_model = future_map(K, ~stm(dfm, K = .,
+                                                 verbose = FALSE)))
+
+
+
+many_models <- data_frame(K = seq(5, 20, by = 5)) %>% # Here we're running four topic models: 5 topics, 10 topics, 15 topics and 20 topics
+  mutate(topic_model = future_map(K, ~stm(dfm, 
+                                          K = .,
+                                          verbose = FALSE)))
+toc()
+
+DFM <- dfm
+
+t <- Sys.time()
+
+DFM2stm <- convert(DFM, to = "stm") 
+IdealK <- searchK(DFM2stm$documents, DFM2stm$vocab, 
+                  K = seq(3, 10, by = 1), 
+                  seed = 9999)
+
+plot(IdealK)
 
 k_result <- many_models %>%
   mutate(exclusivity = map(topic_model, exclusivity),
