@@ -1,5 +1,8 @@
 setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
 
+# clean current workspace
+rm(list=ls(all=T))
+
 library(textmineR)
 library(igraph)
 library(ggraph)
@@ -101,9 +104,58 @@ annotated_plots_clean %>%
   cast_dfm(doc_id, lemma, n) -> dfm
 
 
-dfm2stm <- convert(dfm, to = "stm")
+
+DFM2stm <- convert(dfm, to = "stm") 
+
+docs <- DFM2stm$documents
+vocab <- DFM2stm$vocab
+meta <-DFM2stm$meta
+
+documents <- out$documents
+vocab <- out$vocab
+meta <- out$meta
+set.seed(02138)
+K<-c(2,4,10) 
+kresult <- searchK(docs, vocab, K, prevalence=~treatment + s(pid_rep), data=meta)
+plot(kresult)
+
+
+
+IdealK <- searchK(DFM2stm$documents, DFM2stm$vocab
+                  , K = seq(4, 15, by = 1), max.em.its = 75
+                  , seed = 9999)
+
+
+
+
+#Construct term-document matrix
+mat <- readCorpus(dtm)
+processed <- prepDocuments(mat$documents, mat$vocab, lower.thresh = 2)
+
+#ptm <- proc.time()
+#Run searchK function
+kresult <- searchK(processed$documents, processed$vocab, c(0))
+#print(proc.time() - ptm)
+
+
+
+dfm2stm <- convert(dfm, to = "stm", docvars = docvars(dfm))
 
 mein.stm.idealK <- searchK(dfm2stm$documents, dfm2stm$vocab, K = seq(2, 15, by = 1), max.em.its = 75)
+
+
+
+
+kresult.D.de.deepl <- searchK(documents = dfm2stm$documents, vocab = dfm2stm$vocab, data = dfm2stm$meta,
+                              K = c(2, 3, 4, 5), init.type = "LDA")
+save(kresult.D.de.deepl, file = 'data/kresult_D_de_deepl.RData')
+plot.searchK(kresult)
+
+
+
+
+
+
 
 
 library(stm)
