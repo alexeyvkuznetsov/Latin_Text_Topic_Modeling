@@ -69,12 +69,24 @@ head(dtm_colsums(dtm))
 dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
+# https://github.com/AlexByzov93/ibd_2020/blob/master/Class%209/Scripts_for%20project%202/Models%20preparation.R
+
+
 library(tidyverse)
 library(stm)
 library(tidytext)
 library(quanteda)
 library(qdap)
+library(furrr)
 annotated_plots <- x
+
+
+#####
+#Preprocess the data:
+#- lowercase the lemmas;
+#- delete numbers, symbols, punctuation, and unknown parts of speech (X in the `upos` column);
+#- remove stop words
+#####
 
 annotated_plots_clean <- annotated_plots %>% 
   mutate(lemma = str_to_lower(lemma)) %>% 
@@ -90,8 +102,121 @@ annotated_plots_clean %>%
 
 
 
+dfm <- dfm %>% 
+  dfm_trim(min_termfreq = 4)
+
+#plan(multicore)
+
+models <- tibble(
+  K = seq(1, 10, 1)
+) %>% 
+  mutate(
+    topic_models = future_map(K,
+                              ~stm(dfm,
+                                   K = .x,
+                                   seed = 1000
+                              )
+    )
+  )
+
+many_models <- data_frame(K = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)) %>%
+  mutate(topic_model = future_map(K, ~stm(dfm, K = .,
+                                          verbose = FALSE)))
 
 
+heldout <- make.heldout(dfm)
+
+k_result <- many_models %>%
+  mutate(exclusivity = map(topic_model, exclusivity),
+         semantic_coherence = map(topic_model, semanticCoherence, dfm),
+         eval_heldout = map(topic_model, eval.heldout, heldout$missing),
+         residual = map(topic_model, checkResiduals, dfm),
+         bound =  map_dbl(topic_model, function(x) max(x$convergence$bound)),
+         lfact = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
+         lbound = bound + lfact,
+         iterations = map_dbl(topic_model, function(x) length(x$convergence$bound)))
+
+k_result
+
+# Diagnostic plots
+k_result %>%
+  transmute(K,
+            `Lower bound` = lbound,
+            Residuals = map_dbl(residual, "dispersion"),
+            `Semantic coherence` = map_dbl(semantic_coherence, mean),
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
+  gather(Metric, Value, -K) %>%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
+  facet_wrap(~Metric, scales = "free_y") +
+  labs(x = "K (number of topics)",
+       y = NULL,
+       title = "Model diagnostics by number of topics",
+       subtitle = "These diagnostics indicatre 10 to be a good number")
+
+
+
+saveRDS(models, "STM_1.RDS")
+
+heldout <- make.heldout(dfm)
+
+models_statistics <- models %>% 
+  mutate(
+    exclusivity = map(topic_models, exclusivity),
+    semantic_coherence = map(topic_models, semanticCoherence, dfm),
+    heldout = map(topic_models, eval.heldout, heldout$missing),
+    residual = map(topic_models, checkResiduals, dfm)
+  )
+
+models_statistics %>% 
+  select(K, exclusivity, semantic_coherence) %>% 
+  unnest(cols = c(exclusivity, semantic_coherence)) %>% 
+  ggplot(aes(x = exclusivity, y = semantic_coherence, color = factor(K))) +
+  geom_point()
+
+
+models_statistics %>% 
+  select(K, exclusivity, semantic_coherence) %>% 
+  mutate(
+    exclusivity = map_dbl(exclusivity, ~mean(unlist(.x))),
+    semantic_coherence = map_dbl(semantic_coherence, ~mean(unlist(.x)))
+  )
+
+models_statistics %>% 
+  mutate(
+    exclusivity = map_dbl(exclusivity, ~mean(unlist(.x))),
+    semantic_coherence = map_dbl(semantic_coherence, ~mean(unlist(.x))),
+    heldout = map_dbl(heldout, function(.x) .x[[1]]),
+    residual = map_dbl(residual, function(.x) .x[[1]])
+  ) %>% 
+  select(K, exclusivity, semantic_coherence, heldout, residual) %>% 
+  View()
+
+models_statistics %>% 
+  mutate(
+    exclusivity = map_dbl(exclusivity, ~mean(unlist(.x))),
+    semantic_coherence = map_dbl(semantic_coherence, ~mean(unlist(.x))),
+    heldout = map_dbl(heldout, function(.x) .x[[1]]),
+    residual = map_dbl(residual, function(.x) .x[[1]])
+  ) %>% 
+  select(K, exclusivity, semantic_coherence, heldout, residual) %>% 
+  pivot_longer(
+    exclusivity:residual
+  ) %>% 
+  ggplot(aes(K, value, factor(name))) +
+  geom_smooth() +
+  theme_classic() +
+  facet_wrap(~factor(name), scales = "free")
+
+sageLabels(models$topic_models[3][[1]])
+
+broom::tidy(models$topic_models[3][[1]], "beta") %>% 
+  group_by(topic) %>% 
+  slice_max(beta, n = 5) %>% 
+  ggplot(aes(x = term, y = beta, fill = factor(topic))) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ factor(topic), scales = 'free')
 
 
 # estimamos K ----------------------
