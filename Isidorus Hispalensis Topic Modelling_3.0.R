@@ -106,6 +106,42 @@ annotated_plots_clean %>%
 
 
 
+# Convert a DTM to a Character Vector of documents
+library(textmineR)
+dtm.to.docs <- textmineR::Dtm2Docs(dtm = dtm)
+
+
+## Convert dtm to a list of text
+dtm.to.docs <- apply(dtm, 1, function(x) {
+  paste(rep(names(x), x), collapse=" ")
+})
+
+## convert list of text to a Corpus
+
+myCorpus <- VCorpus(VectorSource(dtm.to.docs))
+
+
+
+
+# make dtm
+nazi_dtm <- dfm(myCorpus)
+nazi_dtm <- dfm_remove(nazi_dtm, c("jahr","|","tag","zeit"))
+# convert to correct format
+nazi_dtm_stm <- convert(nazi_dtm, to = "stm")
+
+# finally, run stm
+nazi_stm <- stm(documents= nazi_dtm_stm$documents, 
+                vocab=nazi_dtm_stm$vocab, 
+                K = 4,
+                verbose=F)
+
+plot(nazi_stm, 
+     type = "summary")
+
+
+
+
+
 library(stm)
 
 
@@ -116,7 +152,7 @@ nazi_dtm_stm <- convert(dfm, to = "stm")
 # finally, run stm
 nazi_stm <- stm(documents= nazi_dtm_stm$documents, 
                 vocab=nazi_dtm_stm$vocab, 
-                K = 6,
+                K = 4,
                 verbose=F)
 
 plot(nazi_stm, 
