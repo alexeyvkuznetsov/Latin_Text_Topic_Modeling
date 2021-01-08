@@ -104,6 +104,10 @@ annotated_plots_clean %>%
   cast_dfm(doc_id, lemma, n) -> dfm
 
 
+dfm <- dfm %>% 
+  dfm_trim(min_termfreq = 4)
+
+
 
 
 # Convert a DTM to a Character Vector of documents
