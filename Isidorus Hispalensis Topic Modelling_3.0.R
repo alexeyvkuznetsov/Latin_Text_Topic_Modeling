@@ -105,6 +105,43 @@ annotated_plots_clean %>%
 
 
 
+
+library(stm)
+
+
+
+# convert to correct format
+nazi_dtm_stm <- convert(dfm, to = "stm")
+
+# finally, run stm
+nazi_stm <- stm(documents= nazi_dtm_stm$documents, 
+                vocab=nazi_dtm_stm$vocab, 
+                K = 6,
+                verbose=F)
+
+plot(nazi_stm, 
+     type = "summary")
+
+
+plot(nazi_stm,
+     type = "perspectives",
+     topics=1:2)
+
+
+
+
+nazi_k <- searchK(nazi_dtm_stm$documents, 
+                  nazi_dtm_stm$vocab, 
+                  K = 2:10,
+                  verbose=F)
+plot(nazi_k)
+# between 8 and 10 topics seem optimal
+
+
+
+
+
+
 DFM2stm <- convert(dfm, to = "stm") 
 
 docs <- DFM2stm$documents
