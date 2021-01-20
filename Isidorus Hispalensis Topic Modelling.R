@@ -6,6 +6,7 @@ library(ggraph)
 library(ggplot2)
 library(tm)
 library(udpipe)
+library(LDAvis)
 
 prologus<-paste(scan(file ="files/01 prologus.txt",what='character'),collapse=" ")
 historia_g<-paste(scan(file ="files/02 historia_g.txt",what='character'),collapse=" ")
@@ -189,7 +190,7 @@ ggplot(data = vizDataFrame, aes(topic, value, fill = document), ylab = "proporti
 # https://github.com/love-borjeson/tm_ws_cloud/blob/master/3_ling_filter.R
 # udpipe + LDAvis
 
-
+require(LDAvis)
 
 topicmodels2LDAvis <- function(x, ...){
   post <- topicmodels::posterior(x)
