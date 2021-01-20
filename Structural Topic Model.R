@@ -19,6 +19,11 @@ library(knitr)
 #mp_setapikey("C:/Users/jacobsm17/R Files/CSV Data/manifesto_apikey.txt") 
 mp_setapikey("manifesto_apikey.txt")
 
+library(haven)
+library(manifestoR)
+mp_setapikey("manifesto_apikey.txt")
+
+
 full_data <- mp_maindataset(version = "current")
 
 my_corpus <- mp_corpus(countryname == "South Africa" )
