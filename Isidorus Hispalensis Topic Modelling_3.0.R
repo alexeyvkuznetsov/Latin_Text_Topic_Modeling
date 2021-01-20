@@ -55,7 +55,6 @@ x <- as.data.frame(x)
 load("historia_annotated_dataset.Rda")
 
 
-
 dtf <- subset(x, upos %in% c("NOUN"))
 
 dtf <- document_term_frequencies(dtf, document = "doc_id", term = "lemma")

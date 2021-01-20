@@ -45,10 +45,10 @@ x <- udpipe_annotate(udmodel_latin, x = historia$texts, doc_id = historia$book, 
 x <- as.data.frame(x)
 
 
-save(x,file="hustoria_annotated_dataset.Rda")
+save(x,file="historia_annotated_dataset.Rda")
 
 
-#load("fivebooks_annotated_dataset.Rda")
+#load("historia_annotated_dataset.Rda")
 
 
 
