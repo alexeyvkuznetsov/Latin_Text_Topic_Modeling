@@ -32,7 +32,7 @@ library(jtools)
 install.packages("remotes")
 remotes::install_github("PeerChristensen/trustpilotR")
 
-df <- get_reviews("https://dk.trustpilot.com/review/vitaepro.dk", 2, company = "VitaePro")
+df <- get_reviews("https://dk.trustpilot.com/review/", 2, company = "VitaePro")
 
 #write_csv(df, "vitaepro_data.csv")
 

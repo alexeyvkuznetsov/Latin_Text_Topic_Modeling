@@ -16,11 +16,7 @@ library(kableExtra)
 library(gridExtra)
 library(knitr)
 
-#mp_setapikey("C:/Users/jacobsm17/R Files/CSV Data/manifesto_apikey.txt") 
-mp_setapikey("manifesto_apikey.txt")
 
-library(haven)
-library(manifestoR)
 mp_setapikey("manifesto_apikey.txt")
 
 
@@ -45,7 +41,7 @@ count(manifesto_id, word) %>%
   cast_sparse(manifesto_id, word, n)
 
 
-many_models <- data_frame(K = c(10, 20, 30, 40)) %>%
+many_models <- data_frame(K = c(10, 20)) %>%
   mutate(topic_model = future_map(K, ~stm(tidy_news_sparse, K = .,
                                           verbose = FALSE)))
 
