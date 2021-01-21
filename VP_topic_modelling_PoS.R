@@ -80,6 +80,8 @@ dfSparse <- df             %>%
   count(id, word)          %>%
   cast_sparse(id, word, n)
 
+
+
 plan("default")
 start_time_stm <- Sys.time()
 
@@ -89,6 +91,11 @@ many_models_stm <- data_frame(K = nTopics) %>%
   mutate(topic_model = future_map(K, ~stm(dfSparse, K = ., verbose = TRUE)))
 
 end_time_stm <- Sys.time() # 4 mins
+
+
+
+
+
 
 heldout <- make.heldout(dfSparse)
 
