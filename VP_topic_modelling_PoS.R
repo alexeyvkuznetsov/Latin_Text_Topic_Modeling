@@ -44,18 +44,23 @@ df <- get_reviews("https://dk.trustpilot.com/review/", 2, company = "VitaePro")
 
 ########## 1. Prepare data ################################
 
-df <- read_csv("vitaepro_data2.csv")
+df_vit <- read_csv("vitaepro_data2.csv")
 
-#udmodel <- udpipe_download_model(language = "danish")
+# udmodel <- udpipe_download_model(language = "english")
+udmodel <- udpipe_load_model(file = "english-ewt-ud-2.5-191206.udpipe")
 
 my_stopwords <- c("så","vitaepro","pro","vita","danmark","vitae","vitapro", "vita", "hilsen","kan",
                   tm::stopwords("danish"))
 
-df %<>%
+# df %<>%
   filter(rating >= 4) 
 
-df <- udpipe(x = df$review,
-             object = udmodel)
+df <- udpipe(x = df_vit$content,
+             doc_id = df_vit$X1,
+             object = udmodel,
+             trace = TRUE)
+
+df_ann <- df
 
 # LEMMA MODEL
 
