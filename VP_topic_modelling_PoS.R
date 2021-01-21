@@ -83,7 +83,7 @@ dfSparse <- df             %>%
 plan("default")
 start_time_stm <- Sys.time()
 
-nTopics <- seq(2,16,2)
+nTopics <- seq(2,8,2)
 
 many_models_stm <- data_frame(K = nTopics) %>%
   mutate(topic_model = future_map(K, ~stm(dfSparse, K = ., verbose = TRUE)))
