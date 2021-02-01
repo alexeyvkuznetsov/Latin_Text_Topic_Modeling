@@ -208,8 +208,8 @@ model_list <- TmParallelApply(X = k_list, FUN = function(k){
                    k = k, 
                    iterations = 4000, 
                    burnin = 500,
-                   alpha = 0.1,
-                   beta = colSums(dtm) / sum(dtm) * 100,
+                   alpha = 0.01,
+                   #beta = colSums(dtm) / sum(dtm) * 100,
                    optimize_alpha = TRUE,
                    calc_likelihood = TRUE,
                    calc_coherence = TRUE,
@@ -242,6 +242,7 @@ library(topicmodels)
 topicModel <- topicmodels::LDA(dtm, k = 4, method = "Gibbs", control = list(nstart = 5, iter = 4000, burnin = 500, best = TRUE, seed = 1:5, alpha = 0.1))
 
 topics(topicModel)
+
 
 
 # Topics vizualization
