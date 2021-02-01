@@ -139,7 +139,7 @@ abline(v=seq(0,85,10), lty=3, col="gray")
 set.seed(12345)
 
 
-k_list <- seq(1, 25, by = 1)
+k_list <- seq(1, 20, by = 1)
 model_dir <- paste0("models_", digest::digest(colnames(nih_sample_dtm), algo = "sha1"))
 
 # Fit a bunch of LDA models
@@ -147,19 +147,19 @@ model_list <- TmParallelApply(X = k_list, FUN = function(k){
   
   m <- FitLdaModel(dtm = dtm, 
                    k = k, 
-                   iterations = 200, 
+                   iterations = 2000, 
                    burnin = 180,
                    alpha = 0.1,
                    beta = colSums(dtm) / sum(dtm) * 100,
                    optimize_alpha = TRUE,
-                   calc_likelihood = FALSE,
+                   calc_likelihood = TRUE,
                    calc_coherence = TRUE,
                    calc_r2 = FALSE,
                    cpus = 1)
   m$k <- k
   
   m
-}, export= ls(), # c("nih_sample_dtm"), # export only needed for Windows machines
+}, export= c("nih_sample_dtm"), # c("nih_sample_dtm"), # export only needed for Windows machines
 cpus = 2) 
 
 #model tuning
