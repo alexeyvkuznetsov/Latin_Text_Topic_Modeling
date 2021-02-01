@@ -139,7 +139,7 @@ abline(v=seq(0,85,10), lty=3, col="gray")
 set.seed(12345)
 
 
-k_list <- seq(1, 20, by = 1)
+k_list <- seq(1, 15, by = 1)
 model_dir <- paste0("models_", digest::digest(vocabulary, algo = "sha1"))
 if (!dir.exists(model_dir)) dir.create(model_dir)
 
