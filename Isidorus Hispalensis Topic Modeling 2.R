@@ -189,7 +189,7 @@ top20_terms <- as.data.frame(model$top_terms)
 
 
 
-
+##############################
 ##############################
 
 # Coherence score for topics
