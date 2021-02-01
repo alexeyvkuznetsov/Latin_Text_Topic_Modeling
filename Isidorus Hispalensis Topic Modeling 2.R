@@ -140,7 +140,8 @@ set.seed(12345)
 
 
 k_list <- seq(1, 20, by = 1)
-model_dir <- paste0("models_", digest::digest(colnames(nih_sample_dtm), algo = "sha1"))
+model_dir <- paste0("models_", digest::digest(vocabulary, algo = "sha1"))
+if (!dir.exists(model_dir)) dir.create(model_dir)
 
 # Fit a bunch of LDA models
 model_list <- TmParallelApply(X = k_list, FUN = function(k){
@@ -159,7 +160,7 @@ model_list <- TmParallelApply(X = k_list, FUN = function(k){
   m$k <- k
   
   m
-}, export= c("nih_sample_dtm"), # c("nih_sample_dtm"), # export only needed for Windows machines
+}, export= c("dtm"), # c("nih_sample_dtm"), # export only needed for Windows machines
 cpus = 2) 
 
 #model tuning
@@ -189,7 +190,7 @@ top20_terms <- as.data.frame(model$top_terms)
 
 
 
-
+##############################
 
 # Coherence score for topics
 
