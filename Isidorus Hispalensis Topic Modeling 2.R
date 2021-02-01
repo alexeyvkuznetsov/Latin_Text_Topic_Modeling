@@ -69,6 +69,74 @@ head(dtm_colsums(dtm))
 dtm <- dtm_remove_terms(dtm, terms = c("ann.", "ann", "an", "annus", "aer", "aes", "suus", "filius", "pater", "frater", "pars", "maldra", "theudericus", "hucusque", "hispanium", "caeter", "justinianus", "praelio", "cdxxxnum._rom.", "cdxinum._rom.", "cdxix", "op"))
 
 
+# https://towardsdatascience.com/beginners-guide-to-lda-topic-modelling-with-r-e57a5a8e7a25
+# https://github.com/tqx94/Text-Analytics_LDA
+#  loading of data, pre-processing of data, building the model and visualisation of the words in a topic.
+#library(readtext)
+# Running LDA -----------------------------------------------------------
+k_list <- seq(1, 20, by = 1)
+model_dir <- paste0("models_", digest::digest(vocabulary, algo = "sha1"))
+if (!dir.exists(model_dir)) dir.create(model_dir)
+
+model_list <- TmParallelApply(X = k_list, FUN = function(k){
+  filename = file.path(model_dir, paste0(k, "_topics.rda"))
+  
+  if (!file.exists(filename)) {
+    m <- FitLdaModel(dtm = dtm, k = k, iterations = 2000)
+    m$k <- k
+    m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
+    save(m, file = filename)
+  } else {
+    load(filename)
+  }
+  
+  m
+}, export=c("dtm", "model_dir")) # export only needed for Windows machines
+
+#model tuning
+#choosing the best model
+coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
+                            coherence = sapply(model_list, function(x) mean(x$coherence)), 
+                            stringsAsFactors = FALSE)
+
+ggplot(coherence_mat, aes(x = k, y = coherence)) +
+  geom_point() +
+  geom_line(group = 1)+
+  ggtitle("Best Topic by Coherence Score") + theme_minimal() +
+  scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
+
+#select models based on max average
+model <- model_list[which.max(coherence_mat$coherence)][[ 1 ]]
+
+
+
+#5. Visualising of topics in a dendrogram ----------------------------------------------
+#probability distributions called Hellinger distance, distance between 2 probability vectors
+model$topic_linguistic_dist <- CalcHellingerDist(model$phi)
+model$hclust <- hclust(as.dist(model$topic_linguistic_dist), "ward.D")
+model$hclust$labels <- paste(model$hclust$labels, model$labels[ , 1])
+plot(model$hclust)
+
+
+
+
+# https://github.com/xcelsiorbosi/UNI_2019_DAG_TEXT_ANALYTICS/blob/c542f636f6715da42e9ae62f1393f0b4c2e0041e/analytics/topic_modelling.R
+# Plot the result
+# On larger (~1,000 or greater documents) corpora, you will usually get a clear peak
+
+plot(coherence_mat, type = "o", col = "red", xlab = "Number of Topics", ylab = "Coherence score", 
+     main = "Coherence plot for K Topics", pch = 16, cex = 1)
+axis(1, seq(0,85,10))
+abline(v=seq(0,85,10), lty=3, col="gray")
+
+
+
+
+
+
+
+
+
 
 # Coherence score for topics
 
