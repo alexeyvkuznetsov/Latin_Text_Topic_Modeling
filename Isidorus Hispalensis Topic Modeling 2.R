@@ -243,7 +243,7 @@ topicModel <- topicmodels::LDA(dtm, k = 4, method = "Gibbs", control = list(nsta
 
 topics(topicModel)
 
-
+topicModel <- model
 
 # Topics vizualization
 
@@ -260,7 +260,7 @@ td_beta %>%
   mutate(topic = paste0("Topic ", topic),
          term = reorder_within(term, beta, topic)) %>%
   ggplot(aes(term, beta, fill = as.factor(topic))) +
-  geom_col(alpha = 0.8, show.legend = FALSE) +
+  geom_col(alpha = 0.9, show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip() +
   scale_x_reordered() +
