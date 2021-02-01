@@ -1,5 +1,7 @@
 setwd("D:/GitHub/Latin_Text_Topic_Modeling/")
 
+rm(list = ls())
+
 library(textmineR)
 library(igraph)
 library(ggraph)
@@ -207,6 +209,7 @@ model_list <- TmParallelApply(X = k_list, FUN = function(k){
                    iterations = 4000, 
                    burnin = 500,
                    alpha = 0.1,
+                   beta = colSums(dtm) / sum(dtm) * 100,
                    optimize_alpha = TRUE,
                    calc_likelihood = TRUE,
                    calc_coherence = TRUE,
