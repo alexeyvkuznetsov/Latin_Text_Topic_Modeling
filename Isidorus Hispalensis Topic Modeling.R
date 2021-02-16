@@ -37,7 +37,7 @@ historia$texts <- removeNumbers(historia$texts)
 
 
 # UDPipe annotation
-#udmodel_latin <- udpipe_download_model(language = "latin-ittb")
+udmodel_latin <- udpipe_download_model(language = "latin-ittb")
 #udmodel_latin <- udpipe_load_model(ud_model$file_model)
 udmodel_latin <- udpipe_load_model(file = "latin-ittb-ud-2.5-191206.udpipe")
 
